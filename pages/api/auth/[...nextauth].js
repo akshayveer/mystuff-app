@@ -24,6 +24,9 @@ export default NextAuth({
       type: "sqlite",
       database: ":memory:",
       synchronize: true
+  },
+  pages: {
+      signIn: "/signIn"
   }
     // database: process.env.DATABASE_URL
 })

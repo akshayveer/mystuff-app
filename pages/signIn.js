@@ -15,12 +15,13 @@
   ```
 */
 import { LockClosedIcon } from '@heroicons/react/solid'
-import { signIn, signOut } from 'next-auth/client'
+// import { signIn, signOut } from 'next-auth/client'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faGithub } from "@fortawesome/free-brands-svg-icons"
+import { getProviders, signIn, getSession, getCsrfToken } from 'next-auth/client'
 
 
-export default function SignIn() {
+export default function SignIn({providers, csrfToken}) {
     return (
         <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
             <div className="max-w-md w-full space-y-8">
@@ -33,8 +34,9 @@ export default function SignIn() {
                     <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">Sign in to your account</h2>
 
                 </div>
-                <form className="mt-8 space-y-6" action="/api/hello" method="POST">
+                <form className="mt-8 space-y-6" action="/api/auth/signin/email" method="POST">
                     <input type="hidden" name="remember" defaultValue="true" />
+                    <input type="hidden" name="csrfToken" defaultValue={csrfToken}  />
                     <div className="rounded-md shadow-sm -space-y-px">
                         <div>
                             <label htmlFor="email-address" className="sr-only">
@@ -98,14 +100,50 @@ export default function SignIn() {
                         </button>
                     </div>
                 </form>
-                <button
-                    onClick={() => signIn()}
-                    className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                >
-                    <span className="absolute left-0 inset-y-0 flex items-center pl-3">
-                        <FontAwesomeIcon icon={faGithub} /></span> GitHub
-            </button>
+                {
+                    Object.values(providers).map((provider, index) => {
+                        if (provider.name === "Email") {
+                            return;
+                        }
+                        return (
+                            <button onClick={() => signIn(provider.id)} key={index}
+                                className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            
+                            {
+                                <>
+                                <span className="absolute left-0 inset-y-0 flex items-center pl-3">
+                                <FontAwesomeIcon icon={faGithub} /></span> GitHub
+                                </>
+                                
+                            }
+                            </button>
+                        )
+                    })
+                }
+                
             </div>
         </div>
     )
+}
+
+
+export async function getServerSideProps(context){
+    const { req, res } = context
+    const session = await getSession({req})
+    if(session && res && session.accessToken) {
+        res.writeHead(302, {
+            Location: "/"
+        })
+        res.end()
+        return {
+            props: {}
+        }
+    }
+    return {
+        props: {
+            providers: await getProviders(context),
+            csrfToken: await getCsrfToken(context)
+        }
+    }
+
 }
