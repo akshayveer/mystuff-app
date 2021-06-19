@@ -12,6 +12,8 @@
     "@fortawesome/react-fontawesome": "^0.1.14",
     "@headlessui/react": "^1.2.0",
     "@heroicons/react": "^1.0.1",
+    "@next-auth/prisma-adapter": "^0.4.4-canary.64",
+    "@prisma/client": "^2.25.0",
     "next": "10.2.3",
     "next-auth": "^3.26.1",
     "react": "17.0.2",
@@ -20,7 +22,9 @@
   },
   "devDependencies": {
     "autoprefixer": "^10.2.6",
+    "node-jose-tools": "^1.6.28",
     "postcss": "^8.3.2",
+    "prisma": "^2.25.0",
     "tailwindcss": "^2.1.4"
   }
 }

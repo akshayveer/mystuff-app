@@ -1,6 +1,11 @@
 import NextAuth from 'next-auth'
 import Providers from 'next-auth/providers'
 
+import Adapters from 'next-auth/adapters'
+// import { PrismaClient } from "@prisma/client"
+
+import prisma from '../../../lib/prisma'
+
 export default NextAuth({
     providers: [
         // OAuth authentication providers...
@@ -20,27 +25,39 @@ export default NextAuth({
             from: process.env.EMAIL_FROM
         })
     ],
-    database: {
-        type: "sqlite",
-        database: ":memory:",
-        synchronize: true
-    },
     pages: {
         signIn: "/signIn"
     },
-    callbacks: {
-        async signIn(user, account, profile) {
-            const emailRes = await fetch('https://api.github.com/user/emails', {
-                headers: {
-                    'Authorization': `token ${account.accessToken}`
-                }
-            })
-            const emails = await emailRes.json()
-            const primaryEmail = emails.find(e => e.primary).email;
+    // callbacks: {
+    //     async signIn(user, account, profile) {
+    //         console.log("signIn callback made")
+    //         const emailRes = await fetch('https://api.github.com/user/emails', {
+    //             headers: {
+    //                 'Authorization': `token ${account.accessToken}`
+    //             }
+    //         })
+    //         const emails = await emailRes.json()
+    //         const primaryEmail = emails.find(e => e.primary).email;
 
-            user.email = primaryEmail;
-        }
-    },
+    //         user.email = primaryEmail;
+
+    //         const existingUser = await prisma.user.find({email: user.email})
+    //         if (existingUser) {
+    //             user.userId = existingUser.userId
+    //             console.log("user already exits", user.name)
+    //             return true
+    //         }
+    //         // creating new user
+    //         user = await prisma.user.create({
+    //             data: {
+    //               email: user.email,
+    //               name: user.name,
+    //               image: user.image,
+    //             },
+    //           });
+    //           return true
+    //     }
+    // },
     session: {
         jwt: true
     },
@@ -50,6 +67,7 @@ export default NextAuth({
         verificationOptions: {
             algorithms: ["HS512"]
         }
-    }
+    },
+    adapter: Adapters.Prisma.Adapter({ prisma }),
     // database: process.env.DATABASE_URL
 })
