@@ -5,7 +5,7 @@ import Profile from './Profile'
 
 
 const navigation = [
-    { name: 'Goals', href: '#', current: false },
+    { name: 'Goals', href: '/goals', current: false },
     { name: 'Spaces', href: '#', current: false },
     { name: 'Channels', href: '#', current: false },
 ]

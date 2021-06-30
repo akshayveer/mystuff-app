@@ -71,3 +71,15 @@ model VerificationRequest {
 
   @@map(name: "verification_requests")
 }
+
+model Goal {
+  id        Int @id @default(autoincrement())
+  name      String
+  description String
+  duration  Int
+  tasks     Int @default(0)
+  completedTasks Int @default(0) @map(name: "completed_tasks")
+  userId    Int        @map(name: "user_id") @default(-1)
+
+  @@map(name: "goals")
+}
