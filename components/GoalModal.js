@@ -123,7 +123,6 @@ function GoalModal({open, setOpen, addGoal}) {
                           addGoal({
                               "name": titleRef.current.value,
                               "description": desRef.current.value,
-                              "duration": "0 Months"
                           })
                           console.log("goal added")
                           goalFormTitleErrorSetState(true)

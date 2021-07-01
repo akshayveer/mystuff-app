@@ -4,34 +4,35 @@ import Goal from '../components/Goal'
 import GoalModal from '../components/GoalModal'
 import AddGoalStatus from '../components/AddGoalStatus'
 
-const defaultGoals = [
-    {
-        "name": "Get Job as Go Developer",
-        "description": "Want to get a job a go developer",
-        "duration": "3 Months",
-        "pending_tasks": 0,
-        "completed_tasks": 0
-    },
-    {
-        "name": "Job at FAANGM",
-        "description": "Want to crack a job at FAANGM",
-        "duration": "5 Months",
-        "pending_tasks": 0,
-        "completed_tasks": 0
-    },
-    {
-        "name": "Become Blockchain Developer",
-        "description": "From Zero to Hero in Blockchain",
-        "duration": "3 Months",
-        "pending_tasks": 0,
-        "completed_tasks": 0
-    }
-]
+// const defaultGoals = [
+//     {
+//         "name": "Get Job as Go Developer",
+//         "description": "Want to get a job a go developer",
+//         "duration": "3 Months",
+//         "pending_tasks": 0,
+//         "completed_tasks": 0
+//     },
+//     {
+//         "name": "Job at FAANGM",
+//         "description": "Want to crack a job at FAANGM",
+//         "duration": "5 Months",
+//         "pending_tasks": 0,
+//         "completed_tasks": 0
+//     },
+//     {
+//         "name": "Become Blockchain Developer",
+//         "description": "From Zero to Hero in Blockchain",
+//         "duration": "3 Months",
+//         "pending_tasks": 0,
+//         "completed_tasks": 0
+//     }
+// ]
 
 function constructGoals(goals) {
+    console.log('constructing goals', goals)
     return goals.map((goal, index) => {
         return <Goal key={index} name={goal.name} description={goal.description} 
-        no_of_plans={goal.duration} completed_tasks={goal.completed_tasks} pending_tasks={goal.pending_tasks}/>
+        duration={goal.studyPlan?.duration ?? 0} completed_tasks={goal.studyPlan?.completed_tasks ?? 0} pending_tasks={goal.pending_tasks ?? 0}/>
     });
 }
 
@@ -51,12 +52,21 @@ async function postGoal(goal) {
           return true;
       }
       return false;
-    
-     
 }
 
-function Goals() {
+async function getGoals() {
+    const rawResponse = await fetch(`/api/goal/list`)
+    const allGoals = await rawResponse.json();
+    console.log('existing goals', allGoals)
+    return allGoals;
+}
+
+function Goals({defaultGoals}) {
     const [session, loading] = useSession()
+    if (session) {
+        defaultGoals = getGoals()
+    }
+    console.log('type of default', typeof defaultGoals)
     const [goals, setState] = useState(defaultGoals)
     const [goalModalOpen, setIsOpen] = useState(false)
     
@@ -112,3 +122,17 @@ function Goals() {
 }
 
 export default Goals
+
+export async function getStaticProps() {
+    const rawResponse = await fetch(`${process.env.SERVER_URL}/api/goal/list`)
+    const defaultGoals = await rawResponse.json()
+    return {
+      props: {
+        defaultGoals,
+      },
+      // Next.js will attempt to re-generate the page:
+      // - When a request comes in
+      // - At most once every 10 seconds
+      revalidate: 600, // In seconds
+    }
+  }

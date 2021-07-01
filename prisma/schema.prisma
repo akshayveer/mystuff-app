@@ -25,6 +25,7 @@ model User {
   createdAt     DateTime  @default(now()) @map(name: "created_at")
   updatedAt     DateTime  @updatedAt @map(name: "updated_at")
   posts         Post[]
+  goals         Goal[]
 
   @@map(name: "users")
 }
@@ -73,13 +74,31 @@ model VerificationRequest {
 }
 
 model Goal {
-  id        Int @id @default(autoincrement())
-  name      String
+  id          Int        @id @default(autoincrement())
+  name        String
   description String
-  duration  Int
-  tasks     Int @default(0)
-  completedTasks Int @default(0) @map(name: "completed_tasks")
-  userId    Int        @map(name: "user_id") @default(-1)
-
+  userId      Int        @map(name: "user_id")
+  user        User       @relation(fields: [userId], references: [id])
+  studyPlan   StudyPlan?
+  accessType  String      @default("public")
   @@map(name: "goals")
+}
+
+model StudyPlan {
+  id             Int    @id @default(autoincrement())
+  duration       Int
+  tasks          Task[]
+  completedTasks Int    @default(0) @map(name: "completed_tasks")
+  goalId         Int
+  goal          Goal  @relation(fields: [goalId], references: [id])
+
+}
+
+model Task {
+  id          Int        @id @default(autoincrement())
+  description String
+  url         String
+  status      Boolean
+  studyPlan   StudyPlan? @relation(fields: [studyPlanId], references: [id])
+  studyPlanId Int?
 }
