@@ -1,4 +1,5 @@
 import { useSession } from 'next-auth/client'
+import { useEffect } from 'react'
 import { useState } from 'react'
 import Goal from '../../components/Goal'
 import GoalModal from '../../components/GoalModal'
@@ -31,7 +32,7 @@ import AddGoalStatus from '../../components/AddGoalStatus'
 function constructGoals(goals) {
     console.log('constructing goals', goals)
     return goals.map((goal, index) => {
-        return <Goal key={goal.id} id={goal.id} name={goal.name} description={goal.description} 
+        return <Goal key={index} id={goal.id} name={goal.name} description={goal.description} 
         duration={goal.studyPlan?.duration ?? 0} completed_tasks={goal.studyPlan?.completed_tasks ?? 0} pending_tasks={goal.pending_tasks ?? 0}/>
     });
 }
@@ -49,7 +50,7 @@ async function postGoal(goal) {
       const status = rawResponse.status
       console.log(content);
       if (status === 200) {
-          return true;
+          return content;
       }
       return false;
 }
@@ -58,15 +59,11 @@ async function getGoals() {
     const rawResponse = await fetch(`/api/goals`)
     const allGoals = await rawResponse.json();
     console.log('existing goals', allGoals)
-    return allGoals;
+    return allGoals
 }
 
 function Goals({defaultGoals}) {
     const [session, loading] = useSession()
-    if (session) {
-        defaultGoals = getGoals()
-    }
-    console.log('type of default', typeof defaultGoals)
     const [goals, setState] = useState(defaultGoals)
     const [goalModalOpen, setIsOpen] = useState(false)
     
@@ -74,13 +71,21 @@ function Goals({defaultGoals}) {
     const [goalAddedMessage, setGoalAddedMessage] = useState("")
     const [goalAddedAlertOpen, setGoalAddedAlertOpen] = useState(false)
 
+    useEffect(() => {
+        getGoals().then(setState)
+    }, [session])
+
+    if (loading) {
+        return (<h1>Loading..</h1>)
+    }
+
     const addGoal = (newGoal) => {
-        goals.push(newGoal)
-        setState(goals)
         if (session) {
             let v = postGoal(newGoal)
-            
+
             if (v) {
+                goals.push(v)
+                setState(goals)
                 setGoalAddedSuccess(true)
                 setGoalAddedMessage("Sucessfully added goal")
             }
@@ -103,10 +108,11 @@ function Goals({defaultGoals}) {
                             setIsOpen={setGoalAddedAlertOpen}/> 
 
             <GoalModal open={goalModalOpen} setOpen={setIsOpen} addGoal={addGoal}/>
-           
+
             <div className="grid grid-cols-1 md:grid-cols-2 lg:gap-2 my-8 mx-auto w-3/4">
-                {constructGoals(goals)}
+                    {constructGoals(goals)}
             </div>
+           
             <div className="float-right mr-10 sticky">
                 <button className="bg-white shadow-lg hover:shadow-2xl rounded-full h-16 w-16 flex items-center justify-center" onClick={() => setIsOpen(!goalModalOpen)}>
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-14 w-14 text-red-500 hover:text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
