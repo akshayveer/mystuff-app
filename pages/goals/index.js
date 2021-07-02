@@ -1,8 +1,8 @@
 import { useSession } from 'next-auth/client'
 import { useState } from 'react'
-import Goal from '../components/Goal'
-import GoalModal from '../components/GoalModal'
-import AddGoalStatus from '../components/AddGoalStatus'
+import Goal from '../../components/Goal'
+import GoalModal from '../../components/GoalModal'
+import AddGoalStatus from '../../components/AddGoalStatus'
 
 // const defaultGoals = [
 //     {
@@ -31,13 +31,13 @@ import AddGoalStatus from '../components/AddGoalStatus'
 function constructGoals(goals) {
     console.log('constructing goals', goals)
     return goals.map((goal, index) => {
-        return <Goal key={index} name={goal.name} description={goal.description} 
+        return <Goal key={goal.id} id={goal.id} name={goal.name} description={goal.description} 
         duration={goal.studyPlan?.duration ?? 0} completed_tasks={goal.studyPlan?.completed_tasks ?? 0} pending_tasks={goal.pending_tasks ?? 0}/>
     });
 }
 
 async function postGoal(goal) {
-    const rawResponse = await fetch('/api/goal/add', {
+    const rawResponse = await fetch('/api/goals', {
         method: 'POST',
         headers: {
           'Accept': 'application/json',
@@ -55,7 +55,7 @@ async function postGoal(goal) {
 }
 
 async function getGoals() {
-    const rawResponse = await fetch(`/api/goal/list`)
+    const rawResponse = await fetch(`/api/goals`)
     const allGoals = await rawResponse.json();
     console.log('existing goals', allGoals)
     return allGoals;
@@ -124,7 +124,7 @@ function Goals({defaultGoals}) {
 export default Goals
 
 export async function getStaticProps() {
-    const rawResponse = await fetch(`${process.env.SERVER_URL}/api/goal/list`)
+    const rawResponse = await fetch(`${process.env.SERVER_URL}/api/goals`)
     const defaultGoals = await rawResponse.json()
     return {
       props: {
