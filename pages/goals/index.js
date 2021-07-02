@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Goal from '../../components/Goal'
 import GoalModal from '../../components/GoalModal'
 import AddGoalStatus from '../../components/AddGoalStatus'
+import { listPublicGoals } from '../../lib/goalService'
 
 // const defaultGoals = [
 //     {
@@ -75,9 +76,9 @@ function Goals({defaultGoals}) {
         getGoals().then(setState)
     }, [session])
 
-    if (loading) {
-        return (<h1>Loading..</h1>)
-    }
+    // if (loading) {
+    //     return (<h1>Loading..</h1>)
+    // }
 
     const addGoal = (newGoal) => {
         if (session) {
@@ -130,8 +131,7 @@ function Goals({defaultGoals}) {
 export default Goals
 
 export async function getStaticProps() {
-    const rawResponse = await fetch(`${process.env.SERVER_URL}/api/goals`)
-    const defaultGoals = await rawResponse.json()
+    const defaultGoals = await listPublicGoals()
     return {
       props: {
         defaultGoals,

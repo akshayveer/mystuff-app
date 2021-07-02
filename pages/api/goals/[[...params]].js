@@ -56,9 +56,6 @@ async function listGoalsHandler(req, res) {
 
 async function getGoalHandler(req, res, goalId) {
 
-    // try {
-
-    // }
     const session = await getSession({ req })
 
 
@@ -68,6 +65,8 @@ async function getGoalHandler(req, res, goalId) {
         }
     })
 
+    console.log('get goal handler', goal)
+
     if (goal.accessType === 'public') {
         console.log('publi goal', JSON.stringify(goal, null, 2))
         res.status(200)
@@ -76,11 +75,14 @@ async function getGoalHandler(req, res, goalId) {
         return
     }
 
-    const userId = await prisma.user.findFirst({
-        where: { email: session?.user?.email }
+    const { id } = await prisma.user.findFirst({
+        where: { email: session?.user?.email },
+        select: { id: true }
     })
 
-    if (userId && goal.userId == userId) {
+    console.log('get goal handler', id)
+
+    if (id && goal.userId === id) {
         console.log('goal', JSON.stringify(goal, null, 2))
         res.status(200)
         res.send(JSON.stringify(goal))
@@ -88,7 +90,7 @@ async function getGoalHandler(req, res, goalId) {
         return
     }
 
-    res.status(401).send({ message: "You don't have permission to access this goal" })
+    res.status(404).send({ message: "Not found", "name": "Sorry! Could not found" })
     res.end()
 
 }
