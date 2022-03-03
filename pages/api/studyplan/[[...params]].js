@@ -3,58 +3,7 @@ import { getSession } from "next-auth/client"
 import prisma from '../../../lib/prisma'
 
 
-async function listGoalsHandler(req, res) {
-    const session = await getSession({ req })
-    let allGoals = []
-
-    if (session) {
-        // Signed in
-        console.log('Session', JSON.stringify(session, null, 2))
-
-        const body = req.body
-        console.log("post data", JSON.stringify(body, null, 2))
-
-        allGoals = await prisma.goal.findMany({
-            where: {
-                user: {
-                    email: session?.user?.email
-                }
-            },
-            select: {
-                description: true,
-                name: true,
-                id: true,
-                studyPlan: true
-            }
-        })
-
-    } else {
-        // Not Signed in
-        allGoals = await prisma.goal.findMany({
-            where: {
-                accessType: "public"
-            },
-            select: {
-                description: true,
-                name: true,
-                id: true,
-                studyPlan: {
-                    select: {
-                        duration: true,
-                        completedTasks: true
-                    }
-                }
-            },
-            take: 10,
-        })
-    }
-    console.log("all goals", JSON.stringify(allGoals, null, 2))
-    res.send(JSON.stringify(allGoals))
-    res.status(200)
-    res.end()
-}
-
-async function getGoalHandler(req, res, goalId) {
+async function getStuyPlanHandler(req, res, goalId) {
 
     const session = await getSession({ req })
 
@@ -103,7 +52,7 @@ async function getGoalHandler(req, res, goalId) {
 
 }
 
-async function addGoal(req, res) {
+async function updateStudyPlan(req, res) {
     const session = await getSession({ req })
     if (session) {
         // Signed in
@@ -112,17 +61,15 @@ async function addGoal(req, res) {
         const body = req.body
         console.log("post data", JSON.stringify(body, null, 2))
 
-        const newGoal = await prisma.goal.create({
+        const newStudyPlan = await prisma.studyplan.create({
             data: {
-                name: body.name,
-                description: body.description,
-                accessType: body.access,
-                user: {
-                    connect: { email: session?.user?.email }
+                duration: body.duration,
+                goal: {
+                    connect: { goalId: body.goal }
                 }
             }
         })
-        res.send(JSON.stringify(newGoal))
+        res.send(JSON.stringify(newStudyPlan))
         console.log("new goal", JSON.stringify(newGoal, null, 2))
         res.status(200)
 
@@ -139,21 +86,15 @@ export default async function handler(req, res) {
 
     if (req.method === 'GET') {
         if (params) {
-            // get single goal
+            // get single study plan
             console.log('calling get handler')
-            await getGoalHandler(req, res, parseInt(params[0]))
+            await getStuyPlanHandler(req, res, parseInt(params[0]))
             // return
 
-        } else {
-            // get all goals
-            console.log('calling list handler')
-            await listGoalsHandler(req, res)
-            // return
         }
-
     } else if (req.method === 'POST') {
         console.log('calling post handler')
-        await addGoal(req, res)
+        await updateStudyPlan(req, res)
     } else if (req.method === 'DELETE') {
         console.log('calling delete handler')
     } else {

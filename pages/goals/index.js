@@ -6,30 +6,6 @@ import GoalModal from '../../components/GoalModal'
 import AddGoalStatus from '../../components/AddGoalStatus'
 import { listPublicGoals } from '../../lib/goalService'
 
-// const defaultGoals = [
-//     {
-//         "name": "Get Job as Go Developer",
-//         "description": "Want to get a job a go developer",
-//         "duration": "3 Months",
-//         "pending_tasks": 0,
-//         "completed_tasks": 0
-//     },
-//     {
-//         "name": "Job at FAANGM",
-//         "description": "Want to crack a job at FAANGM",
-//         "duration": "5 Months",
-//         "pending_tasks": 0,
-//         "completed_tasks": 0
-//     },
-//     {
-//         "name": "Become Blockchain Developer",
-//         "description": "From Zero to Hero in Blockchain",
-//         "duration": "3 Months",
-//         "pending_tasks": 0,
-//         "completed_tasks": 0
-//     }
-// ]
-
 function constructGoals(goals) {
     console.log('constructing goals', goals)
     return goals.map((goal, index) => {

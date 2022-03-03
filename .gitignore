@@ -35,3 +35,5 @@ yarn-error.log*
 
 # prisma ORM
 prisma/dev.db*
+
+package-lock.json

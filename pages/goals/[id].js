@@ -26,6 +26,10 @@ function GoalPlan({ goal }) {
     if (!session && goal?.accessType === "private") {
         return <Error statusCode={404} title="Not Found"/>
     }
+    
+    if (!goal) {
+        return <Error statusCode={404} title="Not Found"/>
+    }
     // const [ goal, setGoal ] = useState()
 
     const { isFallback } = useRouter();
@@ -37,7 +41,15 @@ function GoalPlan({ goal }) {
 
     return (
         <div>
-            <h1>{goal.name}</h1>
+            <div className="text-center mt-10">
+                <h1 className="text-3xl">{goal.name}</h1>
+            </div>
+            {
+                !goal.studyPlan && 
+                <div className="text-center flex flex-col content-center items-center justify-center h-screen text-4xl">
+                    <p>Such an empty !! <span className="text-white cursor-pointer bg-blue-400 rounded-lg p-2">create plan?</span></p>
+                </div>
+            }
         </div>
     )
 }
